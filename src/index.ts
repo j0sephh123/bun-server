@@ -2,6 +2,11 @@ import { Elysia } from "elysia";
 import { swagger } from "@elysiajs/swagger";
 import Db from "./db";
 
+/**
+ * /users?sort=age,asc for ascending
+ * /users?sort=age,desc for descending
+ */
+
 const app = new Elysia()
   .use(swagger())
   .decorate("db", Db.getInstance)

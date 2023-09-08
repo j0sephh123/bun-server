@@ -1,4 +1,5 @@
 import { Database } from "bun:sqlite";
+import usersMock from "./mocks/usersMock";
 
 class Db {
   private static instance: Db;
@@ -29,21 +30,18 @@ class Db {
   }
 
   public seedUsersTable() {
-    this.db
-      .query(
-        `INSERT INTO users (name, age) VALUES
-      ('Alice', 30),
-      ('Bob', 45),
-      ('Charlie', 50),
-      ('David', 22),
-      ('Eva', 36),
-      ('Frank', 60),
-      ('Grace', 25),
-      ('Helen', 31),
-      ('Irene', 44),
-      ('John', 53);`
-      )
-      .run();
+    const insert = this.db.prepare(
+      "INSERT INTO users (name, age) VALUES (name, age)"
+    );
+
+    const insertUsers = this.db.transaction((userArray) => {
+      for (const user of userArray) {
+        insert.run(user);
+      }
+      return userArray.length;
+    });
+
+    insertUsers(usersMock);
   }
 
   public createUsersTable() {
