@@ -6,10 +6,12 @@ const app = new Elysia()
   .use(swagger())
   .decorate("db", Db.getInstance)
   .get("/", () => "Hello Elysia")
-  .get("/users", (arg) => {
+  .get("/api/users", (arg) => {
     const db = arg.db();
 
-    return db.getAllUsers();
+    return {
+      users: db.getAllUsers(),
+    };
   })
   .listen(5000);
 
