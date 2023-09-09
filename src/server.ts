@@ -3,26 +3,34 @@ import { initTRPC } from "@trpc/server";
 import { Elysia, t as T } from "elysia";
 import { cors } from "@elysiajs/cors";
 import { z } from "zod";
+import Db from "./db";
 
-const t = initTRPC.create();
+export const createContext = () => {
+  return {
+    db: Db.getInstance(),
+  };
+};
+
+type ReturnCreateContextType = ReturnType<typeof createContext>;
+
+const t = initTRPC.context<ReturnCreateContextType>().create({});
 const p = t.procedure;
 
 const router = t.router({
-  greet: p
-    .input(
-      z.object({
-        message: z.string(),
-        el: z.enum(["1", "2"]),
-      })
-    )
-    .query(({ input }) => {
-      return {
-        message: input.message,
-        el: input.el,
-      };
-    }),
+  greet: p.query(async ({ ctx }) => {
+    return {
+      users: ctx.db.getAllUsers(),
+    };
+  }),
 });
 
 export type AppRouter = typeof router;
 
-new Elysia().use(cors()).use(trpc(router)).listen(5000);
+new Elysia()
+  .use(cors())
+  .use(
+    trpc(router, {
+      createContext,
+    })
+  )
+  .listen(5000);
